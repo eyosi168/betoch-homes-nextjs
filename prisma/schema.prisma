@@ -3,41 +3,38 @@
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
-
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL") 
+  url      = env("DATABASE_URL")
 }
 
-
-
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String    @unique
+  email         String   @unique
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
 
   // Relations to your existing models
-  posts         Post[]
-  sessions      Session[]
-  accounts      Account[]
-  savedPosts    SavedPost[]
-  
+  posts      Post[]
+  sessions   Session[]
+  accounts   Account[]
+  savedPosts SavedPost[]
   // Chat Relations
-  chatIDs       String[]  @db.ObjectId
-  chats         Chat[]    @relation(fields: [chatIDs], references: [id])
+  chatIDs    String[]    @db.ObjectId
+  chats      Chat[]      @relation(fields: [chatIDs], references: [id])
+
+  @@map("user")
 }
 
 model Session {
-  id        String   @id @map("_id")
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   expiresAt DateTime
   token     String
   createdAt DateTime
@@ -48,10 +45,12 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
+  @@index([userId])
+  @@map("session")
 }
 
 model Account {
-  id                    String    @id @map("_id")
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
   accountId             String
   providerId            String
   userId                String    @db.ObjectId
@@ -65,15 +64,21 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime
+
+  @@index([userId])
+  @@map("account")
 }
 
 model Verification {
-  id         String    @id @map("_id")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   identifier String
   value      String
   expiresAt  DateTime
   createdAt  DateTime?
   updatedAt  DateTime?
+
+  @@index([identifier])
+  @@map("verification")
 }
 
 // --- REAL ESTATE MODELS (Betoch-Homes Logic) ---
@@ -104,10 +109,8 @@ model Post {
   type       Type
   property   Property
   createdAt  DateTime    @default(now())
-  
   user       User        @relation(fields: [userId], references: [id])
   userId     String      @db.ObjectId
-  
   postDetail PostDetail?
   savedPosts SavedPost[]
 }
@@ -122,7 +125,6 @@ model PostDetail {
   school     Int?
   bus        Int?
   restaurant Int?
-  
   post       Post    @relation(fields: [postId], references: [id])
   postId     String  @unique @db.ObjectId
 }
@@ -146,7 +148,6 @@ model Chat {
   seenBy      String[]  @db.ObjectId
   messages    Message[]
   lastMessage String?
-  
   userIDs     String[]  @db.ObjectId
   users       User[]    @relation(fields: [userIDs], references: [id])
 }
