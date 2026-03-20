@@ -22,12 +22,12 @@ export default function SignInPage() {
     await authClient.signIn.email({
       email,
       password,
-      callbackURL: "/dashboard",
+      callbackURL: "/",
     }, {
       onRequest: () => setLoading(true),
       onResponse: () => setLoading(false),
       onSuccess: () => {
-        router.push("/dashboard"); // Fast client-side transition
+        router.push("/"); // Fast client-side transition
       },
       onError: (ctx) => alert(ctx.error.message),
     });

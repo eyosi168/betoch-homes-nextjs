@@ -1,6 +1,7 @@
-import {prisma} from "@/lib/prisma";
-import PropertyCard from "@/components/PropertyCard"; // We'll make this next
-import PropertyFilter from "@/components/PropertyFilter"; // Your filter UI
+import { prisma } from "@/lib/prisma";
+import PropertyCard from "@/components/property/PropertyCard";
+import PropertyFilter from "@/components/property/PropertyFilter";
+import MapWrapper from "@/components/map/MapWrapper"; // <-- Your new component
 
 export default async function PropertiesPage({
   searchParams,
@@ -9,7 +10,7 @@ export default async function PropertiesPage({
 }) {
   const params = await searchParams;
 
-  // This is your 'getPosts' controller logic moved here!
+  // 1. Fetching data from the database (Server Side)
   const posts = await prisma.post.findMany({
     where: {
       city: (params.city as string) || undefined,
@@ -22,35 +23,49 @@ export default async function PropertiesPage({
       },
     },
     include: {
-        postDetail: true // Including details like in your MERN controller
-    }
+      postDetail: true,
+    },
   });
 
-  return (
-    <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-      {/* Left Side: Filter Sidebar */}
-      <aside className="w-full md:w-1/4">
-        <PropertyFilter />
-      </aside>
+  // 2. Prepare data for the map (Convert Prisma Decimals to Numbers)
+  const mapData = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    latitude: Number(post.latitude), 
+    longitude: Number(post.longitude),
+    price: post.price,
+    imgUrl: post.images[0] || "/house-placeholder.jpg",
+  }));
 
-      {/* Right Side: Results Grid */}
-      <main className="flex-1">
-        <h1 className="text-2xl font-bold mb-6">
-          {posts.length} Properties Found
-        </h1>
-        
-        {posts.length === 0 ? (
-          <div className="text-center py-20 bg-gray-50 rounded-lg">
-            <p className="text-muted-foreground">No properties match your search.</p>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* LEFT SIDE: Results */}
+        <div className="flex-1 space-y-6">
+          <PropertyFilter />
+          <h1 className="text-2xl font-bold">{posts.length} Properties Found</h1>
+          
+          {posts.length === 0 ? (
+            <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed">
+              <p className="text-muted-foreground font-medium">No properties match your search criteria.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {posts.map((post) => (
+                <PropertyCard key={post.id} item={post} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT SIDE: Map (Sticky) */}
+        <aside className="hidden lg:block w-[400px] xl:w-[500px]">
+          <div className="sticky top-24 h-[calc(100vh-120px)] overflow-hidden rounded-xl border shadow-sm">
+             {/* 3. Using the Wrapper here prevents the "ssr: false" error */}
+             <MapWrapper items={mapData} />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {posts.map((post) => (
-              <PropertyCard key={post.id} item={post} />
-            ))}
-          </div>
-        )}
-      </main>
+        </aside>
+      </div>
     </div>
   );
 }

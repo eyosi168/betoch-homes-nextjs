@@ -24,12 +24,12 @@ export default function SignUpPage() {
       email,
       password,
       name,
-      callbackURL: "/dashboard", 
+      callbackURL: "/", 
     }, {
       onRequest: () => setLoading(true),
       onResponse: () => setLoading(false),
       onSuccess: () => {
-        router.push("/dashboard"); 
+        router.push("/"); 
       },
       onError: (ctx) => {
         alert(ctx.error.message);
