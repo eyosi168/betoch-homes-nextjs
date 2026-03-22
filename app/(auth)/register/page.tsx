@@ -50,7 +50,7 @@ export default function SignUpPage() {
               <Label htmlFor="name">Full Name</Label>
               <Input 
                 id="name" 
-                placeholder="Eyosyas Solomon" 
+                placeholder="Jhon Doe" 
                 required 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 

@@ -20,6 +20,7 @@ export default function AddPostPage() {
   const [coords, setCoords] = useState({ lat: "", lng: "" });
 
   async function handleSubmit(formData: FormData) {
+   
     if (!coords.lat || !coords.lng) return alert("Please select a location on the map");
     if (images.length === 0) return alert("Please upload at least one image");
 
@@ -49,7 +50,7 @@ export default function AddPostPage() {
   }
 
   return (
-    <div className="container max-w-5xl py-10">
+    <div className="container mx-auto max-w-6xl py-10 px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-8">List Your Property</h1>
       
       <form action={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">

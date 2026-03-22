@@ -84,11 +84,13 @@ export default function Navbar() {
                   )}
                 </Link>
               </Button>
-
+              <Link href="/addPost">
               <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
                 <PlusCircle className="h-4 w-4" />
                 Post Property
               </Button>
+              </Link>
+              
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

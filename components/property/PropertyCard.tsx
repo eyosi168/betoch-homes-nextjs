@@ -73,7 +73,7 @@ export default function PropertyCard({ item }: PropertyCardProps) {
           
           <div className="flex items-center gap-1 text-slate-500 text-sm mb-4">
             <MapPin className="h-4 w-4 shrink-0" />
-            <span className="line-clamp-1">{item.city}, Ethiopia</span>
+            <span className="line-clamp-1">{item.city}, Addis Ababa</span>
           </div>
 
           <div className="flex justify-between border-t pt-4 text-slate-600">

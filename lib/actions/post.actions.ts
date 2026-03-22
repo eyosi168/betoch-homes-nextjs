@@ -62,3 +62,35 @@ export async function createPost(data: z.infer<typeof CreatePostSchema>) {
   revalidatePath("/properties");
   redirect(`/properties/${newPost.id}`);
 }
+export async function deletePost(postId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error("Unauthorized");
+
+  const post = await prisma.post.findUnique({ 
+    where: { id: postId },
+    select: { userId: true } 
+  });
+
+  if (!post || post.userId !== session.user.id) {
+    throw new Error("Unauthorized: You don't own this listing");
+  }
+
+  await prisma.post.delete({ where: { id: postId } });
+  revalidatePath("/profile");
+}
+
+export async function toggleSavePost(postId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error("Unauthorized");
+
+  const existing = await prisma.savedPost.findUnique({
+    where: { userId_postId: { userId: session.user.id, postId } }
+  });
+
+  if (existing) {
+    await prisma.savedPost.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.savedPost.create({ data: { userId: session.user.id, postId } });
+  }
+  revalidatePath("/profile");
+}

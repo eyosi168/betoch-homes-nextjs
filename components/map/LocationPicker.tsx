@@ -33,7 +33,7 @@ function MapEvents({ onChange }: { onChange: (lat: number, lng: number) => void 
 
 export default function LocationPicker({ onChange }: LocationPickerProps) {
   return (
-    <div className="h-[300px] w-full rounded-lg overflow-hidden border">
+    <div className="relative z-0 h-[300px] w-full rounded-lg overflow-hidden border z-Index-0">
       <MapContainer center={[9.03, 38.74]} zoom={12} className="h-full w-full">
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapEvents onChange={onChange} />
