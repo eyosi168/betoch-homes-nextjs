@@ -19,7 +19,8 @@ export default function AddPostPage() {
   const [images, setImages] = useState<string[]>([]);
   const [coords, setCoords] = useState({ lat: "", lng: "" });
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(formData: FormData , ) {
+    
    
     if (!coords.lat || !coords.lng) return alert("Please select a location on the map");
     if (images.length === 0) return alert("Please upload at least one image");

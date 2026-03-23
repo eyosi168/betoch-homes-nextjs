@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Better Auth stores a session token cookie. 
   // The exact name might vary slightly based on your config, but this is the default:
   const sessionCookie = request.cookies.get("better-auth.session_token");
