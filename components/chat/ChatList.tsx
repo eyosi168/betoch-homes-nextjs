@@ -25,6 +25,8 @@ export default async function ChatList() {
             className="p-4 border-b hover:bg-white transition block"
           >
             <p className="font-semibold text-gray-900">{otherUser?.name || "User"}</p>
+           
+
             <p className="text-sm text-gray-500 truncate">{chat.lastMessage || "No messages yet"}</p>
           </Link>
         );
