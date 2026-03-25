@@ -35,7 +35,7 @@ export default function LandingPage() {
         />
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-            Find Your Perfect Home in <span className="text-blue-400">Ethiopia</span>
+            Find Your Perfect Home in <span className="text-blue-400">Addis Ababa</span>
           </h1>
           <p className="text-lg md:text-xl mt-4 text-gray-200 max-w-2xl mx-auto">
             Search thousands of apartments, villas, and commercial properties.
