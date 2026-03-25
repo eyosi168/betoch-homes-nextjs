@@ -1,34 +1,34 @@
 "use client";
-import { useEffect, useState, useRef, useMemo } from "react";
-import * as Ably from "ably";
+import { useEffect, useState, useRef } from "react";
 import { sendMessage } from "@/lib/actions/chat.actions";
+import { useAbly } from "@/components/providers/AblyProvider"; // Import the hook
 
 export default function ChatRoomUI({ chatId, initialMessages, userId }: any) {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // 1. Memoize Ably so we don't create a new connection on every render
-  const ably = useMemo(() => new Ably.Realtime({ authUrl: "/api/ably" }), []);
+  
+  // 1. Get the PERSISTENT connection from context
+  const ably = useAbly();
 
   useEffect(() => {
+    // Reset messages when switching between chats
+    setMessages(initialMessages);
+    
     const channel = ably.channels.get(`chat:${chatId}`);
 
-    // 2. Subscribe to the channel
+    // 2. Subscribe
     channel.subscribe("message", (msg) => {
-      // Only add the message if it's NOT from the current user 
-      // (because we add the user's own message optimistically below)
       if (msg.data.userId !== userId) {
         setMessages((prev: any) => [...prev, msg.data]);
       }
     });
 
-    // 3. CLEANUP: Only unsubscribe from this specific channel
+    // 3. CLEANUP: Only unsubscribe from the channel, DON'T close the connection
     return () => {
-      channel.unsubscribe();
-      // ably.close(); <-- REMOVED: Keep the main connection alive for the session
+      channel.unsubscribe(`chat:${chatId}`);
     };
-  }, [chatId, ably, userId]);
+  }, [chatId, ably, userId, initialMessages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,9 +39,8 @@ export default function ChatRoomUI({ chatId, initialMessages, userId }: any) {
     if (!input.trim()) return;
 
     const currentInput = input;
-    const tempId = Date.now().toString(); // Temporary ID for the key
+    const tempId = Date.now().toString();
 
-    // 4. OPTIMISTIC UPDATE: Add the message to your state IMMEDIATELY
     const optimisticMessage = {
       id: tempId,
       text: currentInput,
@@ -57,13 +56,17 @@ export default function ChatRoomUI({ chatId, initialMessages, userId }: any) {
       await sendMessage(chatId, currentInput);
     } catch (error) {
       console.error("Failed to send:", error);
-      // Optional: Remove the message or show an error if it fails
       alert("Message failed to send.");
     }
   };
 
   return (
     <div className="flex flex-col h-full bg-white">
+      {/* Header - Useful for showing who you're talking to */}
+      <div className="p-4 border-b font-bold bg-white z-10">
+        Chat Room
+      </div>
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
         {messages.map((m: any) => (
           <div key={m.id} className={`flex ${m.userId === userId ? "justify-end" : "justify-start"}`}>

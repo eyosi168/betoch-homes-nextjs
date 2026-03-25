@@ -10,7 +10,7 @@ export default async function ChatList() {
   const chats = await prisma.chat.findMany({
     where: { userIDs: { has: session.user.id } },
     include: { users: true },
-    orderBy: { createdAt: "desc" }
+    orderBy: { updatedAt: "desc" }
   });
 
   return (
