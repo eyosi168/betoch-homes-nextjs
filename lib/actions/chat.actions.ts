@@ -67,3 +67,29 @@ export async function sendMessage(chatId: string, text: string) {
 
   return message;
 }
+export async function getUnreadCount() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return 0;
+
+  const count = await prisma.chat.count({
+    where: {
+      userIDs: { has: session.user.id },
+      NOT: {
+        seenBy: { has: session.user.id }
+      }
+    }
+  });
+
+  return count;
+}
+export async function markAsSeen(chatId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return;
+
+  await prisma.chat.update({
+    where: { id: chatId },
+    data: {
+      seenBy: { push: session.user.id }
+    }
+  });
+}

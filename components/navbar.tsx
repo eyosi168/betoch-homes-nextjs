@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react"; 
+import { useEffect } from "react"; 
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge"; 
+import { useNotificationStore } from "@/lib/store/useNotificationStore";
+import { getUnreadCount } from "@/lib/actions/chat.actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +31,17 @@ export default function Navbar() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   
-  // This state will eventually be powered by your Chat/Socket logic
-  const [unreadCount, setUnreadCount] = useState(3); 
+  // Connect to the Zustand store
+  const { unreadCount, setUnreadCount } = useNotificationStore();
+
+  // Fetch initial unread count when the user logs in
+  useEffect(() => {
+    if (session?.user) {
+      getUnreadCount().then((count) => {
+        setUnreadCount(count);
+      });
+    }
+  }, [session, setUnreadCount]);
 
   const handleLogout = async () => {
     await authClient.signOut({
@@ -72,7 +83,7 @@ export default function Navbar() {
               
               {/* NOTIFICATION BELL */}
               <Button variant="ghost" size="icon" className="relative" asChild>
-                <Link href="/chat">
+                <Link href="/chats">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
                     <Badge 
@@ -84,13 +95,13 @@ export default function Navbar() {
                   )}
                 </Link>
               </Button>
+
               <Link href="/addPost">
-              <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-                <PlusCircle className="h-4 w-4" />
-                Post Property
-              </Button>
+                <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
+                  <PlusCircle className="h-4 w-4" />
+                  Post Property
+                </Button>
               </Link>
-              
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -115,7 +126,7 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/chat" className="cursor-pointer">
+                    <Link href="/chats" className="cursor-pointer">
                       <MessageSquare className="mr-2 h-4 w-4" /> Messages
                     </Link>
                   </DropdownMenuItem>

@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import Link from "next/link";
+import ChatSidebarItem from "./ChatSidebarItem";
 
 export default async function ChatList() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) return <p className="p-4 text-sm">Log in to see chats</p>;
+  if (!session) return null;
 
   const chats = await prisma.chat.findMany({
     where: { userIDs: { has: session.user.id } },
@@ -14,23 +14,34 @@ export default async function ChatList() {
   });
 
   return (
-    <div className="flex flex-col">
-      <div className="p-4 font-bold text-lg border-b bg-white">All Chats</div>
-      {chats.map((chat) => {
-        const otherUser = chat.users.find(u => u.id !== session.user.id);
-        return (
-          <Link 
-            key={chat.id} 
-            href={`/chats/${chat.id}`}
-            className="p-4 border-b hover:bg-white transition block"
-          >
-            <p className="font-semibold text-gray-900">{otherUser?.name || "User"}</p>
-           
-
-            <p className="text-sm text-gray-500 truncate">{chat.lastMessage || "No messages yet"}</p>
-          </Link>
-        );
-      })}
+    <div className="flex flex-col h-full bg-white">
+      {/* Sidebar Header */}
+      <div className="p-5 flex items-center justify-between border-b bg-white/80 backdrop-blur-md sticky top-0 z-20">
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Messages</h1>
+        <div className="bg-slate-100 p-2 rounded-lg">
+           <span className="text-xs font-bold text-slate-500">{chats.length}</span>
+        </div>
+      </div>
+      
+      {/* Chat Items List */}
+      <div className="flex-1 overflow-y-auto">
+        {chats.length === 0 ? (
+          <div className="p-10 text-center">
+            <p className="text-sm text-slate-400">No conversations found</p>
+          </div>
+        ) : (
+          chats.map((chat) => {
+            const otherUser = chat.users.find(u => u.id !== session.user.id);
+            return (
+              <ChatSidebarItem 
+                key={chat.id} 
+                chat={chat} 
+                otherUser={otherUser} 
+              />
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }
