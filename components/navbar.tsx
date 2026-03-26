@@ -69,8 +69,8 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-10 text-sm font-medium ml-40">
             <Link href="/" className="transition-colors hover:text-primary">Home</Link>
             <Link href="/about" className="transition-colors hover:text-primary">Listing</Link>
-            <Link href="/contact" className="transition-colors hover:text-primary">Agents</Link>
-            <Link href="/agents" className="transition-colors hover:text-primary">Contact</Link>
+            <Link href="/agents" className="transition-colors hover:text-primary">Agents</Link>
+            <Link href="/contact" className="transition-colors hover:text-primary">Contact</Link>
           </div>
         </div>
 
