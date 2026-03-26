@@ -5,10 +5,12 @@ import type { NextRequest } from "next/server";
 export async function proxy(request: NextRequest) {
   // Better Auth stores a session token cookie. 
   // The exact name might vary slightly based on your config, but this is the default:
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  const sessionToken = 
+    request.cookies.get("better-auth.session_token") || 
+    request.cookies.get("__Secure-better-auth.session_token");
 
   // If there is no cookie, they are definitely not logged in.
-  if (!sessionCookie) {
+  if (!sessionToken) {
     const url = request.nextUrl.clone();
     url.pathname = "/login"; // Send them to your login page
     
