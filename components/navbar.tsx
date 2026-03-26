@@ -71,7 +71,7 @@ export default function Navbar() {
         <div className="flex items-center gap-8">
           {/* LEFT SIDE: LOGO INTEGRATION */}
 <div className="flex items-center gap-4">
-  <Link href="/" className="relative flex items-center overflow-hidden h-16 w-48">
+  <Link href="/" className="relative flex items-center overflow-hidden h-20 w-64">
     <Image 
       src="/logo.png" 
       alt="Betoch Homes Logo" 
