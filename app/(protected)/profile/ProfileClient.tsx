@@ -11,13 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PropertyCard from "@/components/property/PropertyCard"; // Import the card
 import { 
   MessageCircle, 
   MapPin, 
   Trash2, 
   Edit, 
   PlusCircle, 
-  Settings 
+  Settings,
+  Heart
 } from "lucide-react";
 
 export default function ProfileClient({ user, posts, savedPosts, unreadCount, isOwner }: any) {
@@ -30,7 +32,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
       {/* --- HEADER SECTION --- */}
       <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-8 rounded-2xl border shadow-sm mb-8">
         <div className="relative h-28 w-28 rounded-full overflow-hidden border-4 border-slate-50 shrink-0 shadow-inner">
-          <Image src={avatar}  alt="Avatar" fill className="object-cover" />
+          <Image src={avatar} alt="Avatar" fill className="object-cover" />
         </div>
         
         <div className="flex-1 text-center md:text-left">
@@ -41,7 +43,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
-          {/* Action Button: Post Property (Only for Owner) */}
           {isOwner && (
             <Link href="/addPost">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-md transition-transform hover:scale-105">
@@ -64,7 +65,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                 </Button>
               </Link>
             ) : (
-              <Link href="/messages" className="relative px-4 flex flex-col items-center justify-center text-blue-600 hover:text-blue-800 transition-colors">
+              <Link href="/chats" className="relative px-4 flex flex-col items-center justify-center text-blue-600 hover:text-blue-800 transition-colors">
                 <MessageCircle className="h-6 w-6" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 right-2 bg-red-500 text-white text-[10px] h-5 w-5 rounded-full flex items-center justify-center animate-pulse border-2 border-white">
@@ -104,45 +105,26 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post: any) => (
-                <div key={post.id} className="group border rounded-2xl overflow-hidden bg-white hover:shadow-xl transition-all duration-300">
-                  <div className="relative h-52 w-full overflow-hidden">
-                    <Image 
-                      src={post.images[0]} 
-                      alt={post.title} 
-                      fill 
-                      className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                    />
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-600 shadow-sm">
-                      {post.type.toUpperCase()}
+                <div key={post.id} className="relative group">
+                  <PropertyCard item={post} />
+                  {isOwner && (
+                    <div className="flex gap-2 p-4 bg-white border-t rounded-b-2xl -mt-2 shadow-sm">
+                       <Button variant="outline" size="sm" className="flex-1 rounded-lg">
+                        <Edit size={14} className="mr-2"/> Edit
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        className="flex-1 rounded-lg"
+                        onClick={() => confirm("Delete this listing forever?") && deletePost(post.id)}
+                      >
+                        <Trash2 size={14} className="mr-2"/> Delete
+                      </Button>
                     </div>
-                  </div>
-                  <div className="p-5">
-                    <h4 className="font-bold text-lg truncate text-slate-800">{post.title}</h4>
-                    <p className="flex items-center text-slate-500 text-sm mt-1">
-                      <MapPin size={14} className="mr-1" /> {post.city}
-                    </p>
-                    <p className="text-xl font-black text-blue-600 mt-3">{post.price.toLocaleString()} ETB</p>
-                    
-                    {isOwner && (
-                      <div className="flex gap-3 mt-5 pt-5 border-t border-slate-100">
-                        <Button variant="outline" size="sm" className="flex-1 rounded-lg">
-                          <Edit size={14} className="mr-2"/> Edit
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          className="flex-1 rounded-lg"
-                          onClick={() => confirm("Delete this listing forever?") && deletePost(post.id)}
-                        >
-                          <Trash2 size={14} className="mr-2"/> Delete
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               ))}
               
-              {/* Add New Ghost Card */}
               {isOwner && (
                 <Link href="/addPost" className="group border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-blue-300 hover:bg-blue-50/30 transition-all min-h-[340px]">
                   <div className="h-12 w-12 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
@@ -157,21 +139,27 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
 
         {/* SAVED TAB (Owner Only) */}
         {isOwner && (
-          <TabsContent value="saved">
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {savedPosts?.map((post: any) => (
-                 <div key={post.id} className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-                    <div className="relative h-48"><Image src={post.images[0]} alt="img" fill className="object-cover"/></div>
-                    <div className="p-4">
-                      <h4 className="font-bold truncate">{post.title}</h4>
-                      <p className="text-blue-600 font-bold mt-1">{post.price.toLocaleString()} ETB</p>
-                      <Button variant="secondary" className="w-full mt-4 rounded-xl" onClick={() => {/* logic here */}}>
-                        Remove from Saved
-                      </Button>
-                    </div>
-                 </div>
-               ))}
-             </div>
+          <TabsContent value="saved" className="outline-none">
+            {savedPosts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 bg-slate-50/50 border-2 border-dashed rounded-3xl text-center">
+                <Heart className="h-10 w-10 text-slate-300 mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900">No saved properties</h3>
+                <p className="text-slate-500 mt-2 max-w-sm">Tap the heart on any property to save it for later.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {savedPosts?.filter((p: any) => p !== null).map((saved: any) => (
+                  /* Assuming savedPosts is an array of SavedPost model, 
+                    we need to pass the 'post' relation inside it to the Card 
+                  */
+                  <PropertyCard 
+                    key={saved.id} 
+                    item={saved}
+                    isSavedInitial={true} 
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
         )}
 
@@ -218,8 +206,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                     Save Changes
                   </Button>
                </form>
-
-               {/* Add Password reset here later if needed */}
              </div>
           </TabsContent>
         )}

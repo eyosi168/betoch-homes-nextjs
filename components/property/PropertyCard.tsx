@@ -1,13 +1,15 @@
-"use client"; // Required for the onClick handler
+"use client";
 
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, Maximize, MapPin, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toggleSavePost } from "@/lib/actions/post.actions"; // Ensure this path is correct
+import { cn } from "@/lib/utils";
 
-// 1. Define the Interface (Matching your Prisma schema)
 interface PropertyCardProps {
   item: {
     id: string;
@@ -23,16 +25,33 @@ interface PropertyCardProps {
       size: number | null;
     } | null;
   };
+  isSavedInitial?: boolean; // New Prop
 }
 
-export default function PropertyCard({ item }: PropertyCardProps) {
-  
-  const handleFavorite = (e: React.MouseEvent) => {
-    // 2. Prevent clicking the heart from opening the property page
+export default function PropertyCard({ item, isSavedInitial = false }: PropertyCardProps) {
+  if (!item || !item.id) {
+    console.warn("PropertyCard received an undefined or null item.");
+    return null; 
+  }
+  const [isSaved, setIsSaved] = useState(isSavedInitial);
+  const [isPending, startTransition] = useTransition();
+
+  const handleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Saved property:", item.id);
-    // Logic for Better-Auth saving goes here later
+
+    // Optimistic Update
+    const previousState = isSaved;
+    setIsSaved(!isSaved);
+
+    startTransition(async () => {
+      try {
+        await toggleSavePost(item.id);
+      } catch (error) {
+        setIsSaved(previousState); // Rollback on error
+        console.error("Failed to update saved status", error);
+      }
+    });
   };
 
   return (
@@ -54,10 +73,16 @@ export default function PropertyCard({ item }: PropertyCardProps) {
           <Button 
             variant="ghost" 
             size="icon" 
+            disabled={isPending}
             className="absolute top-4 right-4 bg-white/50 backdrop-blur-sm hover:bg-white rounded-full z-10"
             onClick={handleFavorite}
           >
-            <Heart className="h-5 w-5 text-slate-700 hover:fill-red-500 hover:text-red-500 transition-colors" />
+            <Heart 
+              className={cn(
+                "h-5 w-5 transition-colors",
+                isSaved ? "fill-red-500 text-red-500" : "text-slate-700"
+              )} 
+            />
           </Button>
         </div>
 
@@ -87,7 +112,6 @@ export default function PropertyCard({ item }: PropertyCardProps) {
             </div>
             <div className="flex items-center gap-2">
               <Maximize className="h-4 w-4 text-blue-500" />
-              {/* 3. Display actual size from postDetail */}
               <span className="text-sm font-medium">
                 {item.postDetail?.size || "N/A"} sqm
               </span>
