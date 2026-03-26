@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import PropertyCard from "@/components/property/PropertyCard";
 import PropertyFilter from "@/components/property/PropertyFilter";
-import MapWrapper from "@/components/map/MapWrapper"; // <-- Your new component
+import MapWrapper from "@/components/map/MapWrapper";
 
 export default async function PropertiesPage({
   searchParams,
@@ -10,7 +10,6 @@ export default async function PropertiesPage({
 }) {
   const params = await searchParams;
 
-  // 1. Fetching data from the database (Server Side)
   const posts = await prisma.post.findMany({
     where: {
       city: (params.city as string) || undefined,
@@ -27,11 +26,10 @@ export default async function PropertiesPage({
     },
   });
 
-  // 2. Prepare data for the map (Convert Prisma Decimals to Numbers)
   const mapData = posts.map((post) => ({
     id: post.id,
     title: post.title,
-    latitude: Number(post.latitude), 
+    latitude: Number(post.latitude),
     longitude: Number(post.longitude),
     price: post.price,
     imgUrl: post.images[0] || "/house-placeholder.jpg",
@@ -40,14 +38,20 @@ export default async function PropertiesPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* LEFT SIDE: Results */}
+
+        {/* LEFT SIDE */}
         <div className="flex-1 space-y-6">
           <PropertyFilter />
-          <h1 className="text-2xl font-bold">{posts.length} Properties Found</h1>
-          
+
+          <h1 className="text-2xl font-bold">
+            {posts.length} Properties Found
+          </h1>
+
           {posts.length === 0 ? (
             <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed">
-              <p className="text-muted-foreground font-medium">No properties match your search criteria.</p>
+              <p className="text-muted-foreground font-medium">
+                No properties match your search criteria.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -58,13 +62,13 @@ export default async function PropertiesPage({
           )}
         </div>
 
-        {/* RIGHT SIDE: Map (Sticky) */}
+        {/* RIGHT SIDE MAP */}
         <aside className="hidden lg:block w-[400px] xl:w-[500px]">
           <div className="sticky top-24 h-[calc(100vh-120px)] overflow-hidden rounded-xl border shadow-sm">
-             {/* 3. Using the Wrapper here prevents the "ssr: false" error */}
-             <MapWrapper items={mapData} />
+            <MapWrapper items={mapData} />
           </div>
         </aside>
+
       </div>
     </div>
   );

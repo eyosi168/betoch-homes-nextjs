@@ -3,7 +3,13 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
 export default function PropertyFilter() {
@@ -18,32 +24,44 @@ export default function PropertyFilter() {
     } else {
       params.delete(key);
     }
-    // Updates the URL: e.g., /properties?city=Bole
     replace(`${pathname}?${params.toString()}`);
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl border shadow-sm space-y-6">
-      <h2 className="font-bold text-xl mb-4">Filters</h2>
+    <div className="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm space-y-5">
       
-      {/* City Search */}
-      <div className="space-y-2">
-        <Label>Location</Label>
-        <Input 
-          placeholder="e.g. Bole" 
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Filter Properties
+        </h2>
+        <button
+          onClick={() => replace(pathname)}
+          className="text-sm text-gray-500 hover:text-gray-800 transition"
+        >
+          Reset
+        </button>
+      </div>
+
+      {/* Location */}
+      <div className="space-y-1.5">
+        <Label className="text-sm text-gray-600">Location</Label>
+        <Input
+          placeholder="Search by area (e.g. Bole)"
           defaultValue={searchParams.get("city") || ""}
+          className="h-10"
           onChange={(e) => handleFilterChange("city", e.target.value)}
         />
       </div>
 
-      {/* Property Type Enum */}
-      <div className="space-y-2">
-        <Label>Property Type</Label>
-        <Select 
+      {/* Property Type */}
+      <div className="space-y-1.5">
+        <Label className="text-sm text-gray-600">Property Type</Label>
+        <Select
           defaultValue={searchParams.get("property") || "all"}
           onValueChange={(val) => handleFilterChange("property", val)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-10">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent>
@@ -57,31 +75,32 @@ export default function PropertyFilter() {
       </div>
 
       {/* Price Range */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Min Price</Label>
-          <Input 
-            type="number" 
-            placeholder="0" 
-            onChange={(e) => handleFilterChange("minPrice", e.target.value)}
+      <div className="space-y-2">
+        <Label className="text-sm text-gray-600">Price Range</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            type="number"
+            placeholder="Min"
+            className="h-10"
+            onChange={(e) =>
+              handleFilterChange("minPrice", e.target.value)
+            }
           />
-        </div>
-        <div className="space-y-2">
-          <Label>Max Price</Label>
-          <Input 
-            type="number" 
-            placeholder="Max" 
-            onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
+          <span className="text-gray-400 text-sm">—</span>
+          <Input
+            type="number"
+            placeholder="Max"
+            className="h-10"
+            onChange={(e) =>
+              handleFilterChange("maxPrice", e.target.value)
+            }
           />
         </div>
       </div>
 
-      <Button 
-        variant="outline" 
-        className="w-full mt-4"
-        onClick={() => replace(pathname)} // Clear all filters
-      >
-        Reset Filters
+      {/* Apply Button */}
+      <Button className="w-full h-10 mt-2">
+        Apply Filters
       </Button>
     </div>
   );
