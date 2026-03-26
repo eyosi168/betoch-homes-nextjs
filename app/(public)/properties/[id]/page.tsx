@@ -76,7 +76,7 @@ export default async function PropertyDetailPage({
               <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
               <div className="flex items-center gap-2 text-slate-500 font-medium">
                 <MapPin className="h-4 w-4" />{" "}
-                <span>{post.city}, Ethiopia</span>
+                <span>{post.address}, Addis Ababa</span>
               </div>
             </div>
             <div className="text-right">
