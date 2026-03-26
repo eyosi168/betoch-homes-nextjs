@@ -89,7 +89,7 @@ export default function PropertyCard({ item, isSavedInitial = false }: PropertyC
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-bold text-lg line-clamp-1 group-hover:text-primary transition-colors">
-              {item.title}
+              {item.address}
             </h3>
             <p className="text-primary font-bold text-lg whitespace-nowrap">
               {item.price.toLocaleString()} <span className="text-xs font-normal">ETB</span>
