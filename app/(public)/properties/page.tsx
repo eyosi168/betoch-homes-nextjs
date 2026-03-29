@@ -12,6 +12,7 @@ export default async function PropertiesPage({
 
   const posts = await prisma.post.findMany({
     where: {
+      status:"available",
       city: (params.city as string) || undefined,
       type: params.type ? (params.type as any) : undefined,
       property: params.property ? (params.property as any) : undefined,
