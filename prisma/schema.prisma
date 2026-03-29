@@ -107,6 +107,7 @@ model Post {
   bathroom   Int
   latitude   String
   longitude  String
+  status     Status      @default(available)
   type       Type
   property   Property
   createdAt  DateTime    @default(now())
@@ -114,6 +115,11 @@ model Post {
   userId     String      @db.ObjectId
   postDetail PostDetail?
   savedPosts SavedPost[]
+}
+
+enum Status {
+  available
+  occupied
 }
 
 model PostDetail {

@@ -81,7 +81,9 @@ export async function deletePost(postId: string) {
 
 export async function toggleSavePost(postId: string) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
+  if (!session) {
+    return { success: false, error: "UNAUTHORIZED" };
+  }
 
   const existing = await prisma.savedPost.findUnique({
     where: { userId_postId: { userId: session.user.id, postId } }
@@ -93,4 +95,20 @@ export async function toggleSavePost(postId: string) {
     await prisma.savedPost.create({ data: { userId: session.user.id, postId } });
   }
   revalidatePath("/profile");
+  return { success: true };
+}
+export async function togglePostStatus(postId: string, currentStatus: string) {
+  try {
+    const newStatus = currentStatus === "available" ? "occupied" : "available";
+    
+    await prisma.post.update({
+      where: { id: postId },
+      data: { status: newStatus },
+    });
+
+    revalidatePath("/profile"); // Refresh the profile page data
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update status" };
+  }
 }

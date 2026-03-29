@@ -1,31 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { deletePost } from "@/lib/actions/post.actions";
+import { deletePost, togglePostStatus } from "@/lib/actions/post.actions"; // Import togglePostStatus
 import { updateProfile } from "@/lib/actions/user.actions";
-import { authClient } from "@/lib/auth-client";
 import { CldUploadWidget } from "next-cloudinary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import PropertyCard from "@/components/property/PropertyCard"; // Import the card
+import PropertyCard from "@/components/property/PropertyCard";
 import { 
   MessageCircle, 
-  MapPin, 
   Trash2, 
   Edit, 
   PlusCircle, 
   Settings,
-  Heart
+  Heart,
+  CheckCircle,
+  XCircle,
+  Loader2
 } from "lucide-react";
 
 export default function ProfileClient({ user, posts, savedPosts, unreadCount, isOwner }: any) {
   const [name, setName] = useState(user.name || "");
   const [bio, setBio] = useState(user.bio || "");
   const [avatar, setAvatar] = useState(user.image || "/avatar.png");
+  const [isPending, startTransition] = useTransition();
+
+  // Handler for toggling the house status
+  const handleToggleStatus = (postId: string, currentStatus: string) => {
+    startTransition(async () => {
+      await togglePostStatus(postId, currentStatus);
+    });
+  };
 
   return (
     <div className="container mx-auto max-w-5xl py-10 px-4">
@@ -105,28 +114,63 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post: any) => (
-                <div key={post.id} className="relative group">
+                <div key={post.id} className="relative group flex flex-col h-full">
+                  {/* Status Badge Overlay */}
+                  <div className={`absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5 ${
+                    post.status === "available" 
+                      ? "bg-emerald-500 text-white" 
+                      : "bg-amber-500 text-white"
+                  }`}>
+                    <div className={`h-1.5 w-1.5 rounded-full bg-white ${post.status === "available" ? "animate-pulse" : ""}`} />
+                    {post.status}
+                  </div>
+
                   <PropertyCard item={post} />
+                  
                   {isOwner && (
-                    <div className="flex gap-2 p-4 bg-white border-t rounded-b-2xl -mt-2 shadow-sm">
-                       <Button variant="outline" size="sm" className="flex-1 rounded-lg">
-                        <Edit size={14} className="mr-2"/> Edit
-                      </Button>
+                    <div className="flex flex-col gap-2 p-4 bg-white border-t rounded-b-2xl -mt-2 shadow-sm">
+                      {/* Toggle Status Button */}
                       <Button 
-                        variant="destructive" 
+                        variant="outline" 
                         size="sm" 
-                        className="flex-1 rounded-lg"
-                        onClick={() => confirm("Delete this listing forever?") && deletePost(post.id)}
+                        disabled={isPending}
+                        onClick={() => handleToggleStatus(post.id, post.status)}
+                        className={`w-full rounded-lg font-semibold transition-all ${
+                          post.status === "available" 
+                            ? "border-amber-200 hover:bg-amber-50 text-amber-700" 
+                            : "border-emerald-200 hover:bg-emerald-50 text-emerald-700"
+                        }`}
                       >
-                        <Trash2 size={14} className="mr-2"/> Delete
+                        {isPending ? (
+                          <Loader2 size={14} className="animate-spin mr-2" />
+                        ) : post.status === "available" ? (
+                          <XCircle size={14} className="mr-2" />
+                        ) : (
+                          <CheckCircle size={14} className="mr-2" />
+                        )}
+                        {post.status === "available" ? "Mark as Occupied" : "Mark as Available"}
                       </Button>
+
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 rounded-lg">
+                          <Edit size={14} className="mr-2"/> Edit
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          className="flex-1 rounded-lg"
+                          onClick={() => confirm("Delete this listing forever?") && deletePost(post.id)}
+                        >
+                          <Trash2 size={14} className="mr-2"/> Delete
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
               ))}
               
               {isOwner && (
-                <Link href="/addPost" className="group border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-blue-300 hover:bg-blue-50/30 transition-all min-h-[340px]">
+                <Link href="/addPost" className="group border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-blue-300 hover:bg-blue-50/30 transition-all min-h-[400px]">
                   <div className="h-12 w-12 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
                     <PlusCircle className="text-slate-400 group-hover:text-blue-600" size={24} />
                   </div>
@@ -149,9 +193,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {savedPosts?.filter((p: any) => p !== null).map((saved: any) => (
-                  /* Assuming savedPosts is an array of SavedPost model, 
-                    we need to pass the 'post' relation inside it to the Card 
-                  */
                   <PropertyCard 
                     key={saved.id} 
                     item={saved}
