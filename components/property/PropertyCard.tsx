@@ -113,7 +113,7 @@ export default function PropertyCard({ item, isSavedInitial = false }: PropertyC
               "font-bold text-lg line-clamp-1 transition-colors",
               isOccupied ? "text-slate-500" : "group-hover:text-primary"
             )}>
-              {item.address}
+              {item.title}
             </h3>
             <p className={cn(
               "font-bold text-lg whitespace-nowrap",

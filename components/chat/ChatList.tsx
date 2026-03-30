@@ -5,12 +5,27 @@ import ChatSidebarItem from "./ChatSidebarItem";
 
 export default async function ChatList() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) return null;
+  
+  // Safety check: If no session, don't try to render
+  if (!session?.user) return null;
 
   const chats = await prisma.chat.findMany({
-    where: { userIDs: { has: session.user.id } },
-    include: { users: true },
-    orderBy: { updatedAt: "desc" }
+    where: {
+      // FIX: Changed from 'userIDs: { has: ... }'
+      // We are now asking Postgres: "Find chats where SOME user has my ID"
+      users: {
+        some: {
+          id: session.user.id,
+        },
+      },
+    },
+    // We still include 'users' so we can find the 'otherUser' for the UI
+    include: { 
+      users: true 
+    },
+    orderBy: { 
+      updatedAt: "desc" 
+    }
   });
 
   return (
@@ -19,7 +34,7 @@ export default async function ChatList() {
       <div className="p-5 flex items-center justify-between border-b bg-white/80 backdrop-blur-md sticky top-0 z-20">
         <h1 className="text-xl font-bold text-slate-800 tracking-tight">Messages</h1>
         <div className="bg-slate-100 p-2 rounded-lg">
-           <span className="text-xs font-bold text-slate-500">{chats.length}</span>
+          <span className="text-xs font-bold text-slate-500">{chats.length}</span>
         </div>
       </div>
       
@@ -31,7 +46,10 @@ export default async function ChatList() {
           </div>
         ) : (
           chats.map((chat) => {
+            // This logic still works perfectly because 'chat.users' is an array 
+            // returned by the 'include' statement above.
             const otherUser = chat.users.find(u => u.id !== session.user.id);
+            
             return (
               <ChatSidebarItem 
                 key={chat.id} 
