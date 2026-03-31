@@ -33,3 +33,7 @@ export const auth = betterAuth({
     // Don't forget to add your providers (google, github, etc.) here!
     plugins:[nextCookies()]
 });
+// ADD THESE TWO LINES:
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.Session.user
+export type Auth = typeof auth;

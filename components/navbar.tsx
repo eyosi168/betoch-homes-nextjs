@@ -6,6 +6,7 @@ import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Session } from "@/lib/auth"; 
 import { Badge } from "@/components/ui/badge"; 
 import { useNotificationStore } from "@/lib/store/useNotificationStore";
 import { getUnreadCount } from "@/lib/actions/chat.actions";
@@ -24,20 +25,23 @@ import {
   PlusCircle, 
   Bell, 
   MessageSquare,
-  LayoutDashboard, // Added
-  ArrowLeft        // Added
+  LayoutDashboard,
+  ArrowLeft 
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
-  const { data: session, isPending } = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
   const router = useRouter();
   const pathname = usePathname();
   
-  // 1. Logic to check if we are currently in the Dashboard
+  // CHANGE 1: Explicitly casting 'data' to your custom Session type so '.role' is recognized
+  const session = data as Session | null;
+  
   const isDashboard = pathname.startsWith("/dashboard");
-  // 2. Logic to check if the user is an Admin (Adjust based on your Better Auth schema)
-  const isAdmin = session?.user?.role === "admin";
+
+  // CHANGE 2: Updated to "ADMIN" (uppercase) to match your database defaultValue and logs
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const { unreadCount, setUnreadCount } = useNotificationStore();
 
@@ -88,21 +92,30 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* MIDDLE NAV: Conditional Rendering */}
+          {/* MIDDLE NAV */}
           <div className="hidden lg:flex items-center gap-10 text-base font-medium ml-20">
             {isDashboard ? (
-              // If in Dashboard, only show "Back to Home"
               <Link href="/" className="flex items-center gap-2 text-primary font-semibold hover:opacity-80 transition-opacity">
                 <ArrowLeft size={18} />
                 Back to Public Site
               </Link>
             ) : (
-              // Standard Public Links
               <>
                 <Link href="/" className={linkClass("/")}>Home</Link>
                 <Link href="/properties" className={linkClass("/properties", true)}>Listing</Link>
                 <Link href="/agents" className={linkClass("/agents")}>Agents</Link>
                 <Link href="/contact" className={linkClass("/contact")}>Contact</Link>
+                
+                {/* CHANGE 3: Added Admin Dashboard link directly to the main horizontal nav */}
+                {isAdmin && (
+                  <Link 
+                    href="/dashboard" 
+                    className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1"
+                  >
+                    <LayoutDashboard size={18} />
+                    Dashboard
+                  </Link>
+                )}
               </>
             )}
           </div>
@@ -153,7 +166,7 @@ export default function Navbar() {
 
                   <DropdownMenuSeparator />
 
-                  {/* DASHBOARD LINK (Visible only to Admins) */}
+                  {/* CHANGE 4: Verified logic for the dropdown link */}
                   {isAdmin && (
                     <DropdownMenuItem asChild className="text-blue-600 focus:text-blue-700 font-semibold">
                       <Link href="/dashboard" className="cursor-pointer">
