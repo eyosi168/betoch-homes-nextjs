@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { deletePost, togglePostStatus } from "@/lib/actions/post.actions"; // Import togglePostStatus
+import { deletePost, togglePostStatus } from "@/lib/actions/post.actions"; 
 import { updateProfile } from "@/lib/actions/user.actions";
 import { CldUploadWidget } from "next-cloudinary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,7 +20,9 @@ import {
   Heart,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Clock,
+  Ban
 } from "lucide-react";
 
 export default function ProfileClient({ user, posts, savedPosts, unreadCount, isOwner }: any) {
@@ -29,7 +31,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
   const [avatar, setAvatar] = useState(user.image || "/avatar.png");
   const [isPending, startTransition] = useTransition();
 
-  // Handler for toggling the house status
   const handleToggleStatus = (postId: string, currentStatus: string) => {
     startTransition(async () => {
       await togglePostStatus(postId, currentStatus);
@@ -38,7 +39,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
 
   return (
     <div className="container mx-auto max-w-5xl py-10 px-4">
-      {/* --- HEADER SECTION --- */}
+      {/* --- HEADER SECTION (Unchanged) --- */}
       <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-8 rounded-2xl border shadow-sm mb-8">
         <div className="relative h-28 w-28 rounded-full overflow-hidden border-4 border-slate-50 shrink-0 shadow-inner">
           <Image src={avatar} alt="Avatar" fill className="object-cover" />
@@ -88,7 +89,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
         </div>
       </div>
 
-      {/* --- CONTENT TABS --- */}
       <Tabs defaultValue="listings" className="w-full">
         <TabsList className="mb-8 bg-slate-100/50 p-1">
           <TabsTrigger value="listings" className="px-8">Listings</TabsTrigger>
@@ -96,7 +96,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           {isOwner && <TabsTrigger value="settings" className="px-8">Settings</TabsTrigger>}
         </TabsList>
 
-        {/* MY LISTINGS TAB */}
         <TabsContent value="listings" className="space-y-6 outline-none">
           {posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 bg-slate-50/50 border-2 border-dashed rounded-3xl text-center">
@@ -114,12 +113,25 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post: any) => (
-                <div key={post.id} className="relative group flex flex-col h-full">
-                  {/* Status Badge Overlay */}
+                <div key={post.id} className="relative group flex flex-col h-full border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  
+                  {/* --- CHANGE 1: MODERATION STATUS BADGE (Top Right) --- */}
+                  <div className={`absolute top-3 right-3 z-20 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1 backdrop-blur-md ${
+                    post.moderationStatus === "APPROVED" ? "bg-emerald-500/90 text-white" :
+                    post.moderationStatus === "REJECTED" ? "bg-rose-600/90 text-white" :
+                    "bg-amber-500/90 text-white"
+                  }`}>
+                    {post.moderationStatus === "PENDING" && <Clock size={10} className="animate-pulse" />}
+                    {post.moderationStatus === "APPROVED" && <CheckCircle size={10} />}
+                    {post.moderationStatus === "REJECTED" && <Ban size={10} />}
+                    {post.moderationStatus}
+                  </div>
+
+                  {/* --- CHANGE 2: AVAILABILITY BADGE (Top Left) --- */}
                   <div className={`absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5 ${
                     post.status === "available" 
-                      ? "bg-emerald-500 text-white" 
-                      : "bg-amber-500 text-white"
+                      ? "bg-slate-900/80 text-white backdrop-blur-sm" 
+                      : "bg-slate-400/80 text-white backdrop-blur-sm"
                   }`}>
                     <div className={`h-1.5 w-1.5 rounded-full bg-white ${post.status === "available" ? "animate-pulse" : ""}`} />
                     {post.status}
@@ -128,27 +140,31 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                   <PropertyCard item={post} />
                   
                   {isOwner && (
-                    <div className="flex flex-col gap-2 p-4 bg-white border-t rounded-b-2xl -mt-2 shadow-sm">
-                      {/* Toggle Status Button */}
+                    <div className="flex flex-col gap-2 p-4 bg-white border-t mt-auto">
+                      
+                      {/* --- CHANGE 3: DISABLE TOGGLE IF NOT APPROVED --- */}
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        disabled={isPending}
+                        disabled={isPending || post.moderationStatus !== "APPROVED"}
                         onClick={() => handleToggleStatus(post.id, post.status)}
                         className={`w-full rounded-lg font-semibold transition-all ${
-                          post.status === "available" 
-                            ? "border-amber-200 hover:bg-amber-50 text-amber-700" 
-                            : "border-emerald-200 hover:bg-emerald-50 text-emerald-700"
+                          post.moderationStatus !== "APPROVED" 
+                            ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed" 
+                            : post.status === "available" 
+                              ? "border-amber-200 hover:bg-amber-50 text-amber-700" 
+                              : "border-emerald-200 hover:bg-emerald-50 text-emerald-700"
                         }`}
                       >
-                        {isPending ? (
+                        {post.moderationStatus !== "APPROVED" ? (
+                          "Pending Review"
+                        ) : isPending ? (
                           <Loader2 size={14} className="animate-spin mr-2" />
                         ) : post.status === "available" ? (
-                          <XCircle size={14} className="mr-2" />
+                          <><XCircle size={14} className="mr-2" /> Mark as Occupied</>
                         ) : (
-                          <CheckCircle size={14} className="mr-2" />
+                          <><CheckCircle size={14} className="mr-2" /> Mark as Available</>
                         )}
-                        {post.status === "available" ? "Mark as Occupied" : "Mark as Available"}
                       </Button>
 
                       <div className="flex gap-2">
@@ -181,7 +197,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           )}
         </TabsContent>
 
-        {/* SAVED TAB (Owner Only) */}
+        {/* --- SAVED & SETTINGS TABS (Unchanged) --- */}
         {isOwner && (
           <TabsContent value="saved" className="outline-none">
             {savedPosts.length === 0 ? (
@@ -204,7 +220,6 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           </TabsContent>
         )}
 
-        {/* SETTINGS TAB (Owner Only) */}
         {isOwner && (
           <TabsContent value="settings">
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
