@@ -101,6 +101,7 @@ export async function togglePostStatus(postId: string, currentStatus: string) {
   try {
     const newStatus = currentStatus === "available" ? "occupied" : "available";
     
+    
     await prisma.post.update({
       where: { id: postId },
       data: { status: newStatus },

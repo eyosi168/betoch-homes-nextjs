@@ -10,13 +10,25 @@ export const auth = betterAuth({
         enabled:true
     },
     database: prismaAdapter(prisma, {
-        provider: "mongodb", // Changed from "sqlite"
+        provider: "postgresql", // Changed from "sqlite"
     }),
     advanced: {
         database: {
             generateId: false, 
         },
     },
+    user: {
+        additionalFields: {
+          role: {
+            type: "string", 
+            defaultValue: "USER"
+          },
+          isBanned: {
+            type: "boolean",
+            defaultValue: false
+          }
+        }
+      },
     // Don't forget to add your providers (google, github, etc.) here!
     plugins:[nextCookies()]
 });

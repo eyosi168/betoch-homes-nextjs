@@ -6,6 +6,10 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+enum Role {
+  USER
+  ADMIN
+}
 
 model User {
   id            String    @id @default(cuid())
@@ -16,6 +20,8 @@ model User {
   bio           String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  role Role @default(USER)
+  isBanned   Boolean @default(false)
 
   posts      Post[]
   sessions   Session[]
@@ -89,6 +95,11 @@ enum Status {
   available
   occupied
 }
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
 model Post {
   id         String      @id @default(cuid())
@@ -102,6 +113,7 @@ model Post {
   latitude   String
   longitude  String
   status     Status      @default(available)
+  moderationStatus  ModerationStatus @default(PENDING)
   type       Type
   property   Property
   createdAt  DateTime    @default(now())
