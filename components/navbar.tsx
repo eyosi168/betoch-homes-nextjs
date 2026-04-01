@@ -95,7 +95,7 @@ export default function Navbar() {
           {/* MIDDLE NAV */}
           <div className="hidden lg:flex items-center gap-10 text-base font-medium ml-20">
             {isDashboard ? (
-              <Link href="/" className="flex items-center gap-2 text-primary font-semibold hover:opacity-80 transition-opacity">
+              <Link href="/" className="flex items-center gap-2 text-primary font-bold hover:opacity-80 transition-opacity ">
                 <ArrowLeft size={18} />
                 Back to Public Site
               </Link>
@@ -110,7 +110,7 @@ export default function Navbar() {
                 {isAdmin && (
                   <Link 
                     href="/dashboard" 
-                    className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1"
+                    className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1 ml-20"
                   >
                     <LayoutDashboard size={18} />
                     Dashboard

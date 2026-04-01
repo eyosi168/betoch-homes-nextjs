@@ -33,10 +33,20 @@ const CreatePostSchema = z.object({
 });
 
 export async function createPost(data: z.infer<typeof CreatePostSchema>) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-      });
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  
   if (!session?.user) throw new Error("Please log in to post.");
+
+  // 1. Check the Global System Configuration
+  const config = await prisma.systemConfig.findUnique({
+    where: { id: "system-settings" }
+  });
+
+  // 2. Set the status based on your admin toggle
+  // If config is missing, we default to PENDING for safety
+  const status = config?.autoApprovePosts ? "APPROVED" : "PENDING";
 
   const { desc, utilities, pet, income, size, school, bus, restaurant, ...postData } = data;
 
@@ -44,6 +54,7 @@ export async function createPost(data: z.infer<typeof CreatePostSchema>) {
     data: {
       ...postData,
       userId: session.user.id,
+      moderationStatus: status, // This is the logic we added
       postDetail: {
         create: {
           desc,
@@ -60,6 +71,9 @@ export async function createPost(data: z.infer<typeof CreatePostSchema>) {
   });
 
   revalidatePath("/properties");
+  
+  // If it was auto-approved, redirect to the property
+  // If it's pending, you might want to redirect to a "Thank you, under review" page
   redirect(`/properties/${newPost.id}`);
 }
 export async function deletePost(postId: string) {

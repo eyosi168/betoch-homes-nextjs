@@ -22,7 +22,8 @@ import {
   XCircle,
   Loader2,
   Clock,
-  Ban
+  Ban,
+  AlertTriangle 
 } from "lucide-react";
 
 export default function ProfileClient({ user, posts, savedPosts, unreadCount, isOwner }: any) {
@@ -39,7 +40,23 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
 
   return (
     <div className="container mx-auto max-w-5xl py-10 px-4">
-      {/* --- HEADER SECTION (Unchanged) --- */}
+      
+      {/* BAN WARNING BANNER */}
+      {isOwner && user.isBanned && (
+        <div className="bg-red-50 border-2 border-red-200 p-6 rounded-2xl mb-8 flex items-start gap-4 shadow-sm">
+          <AlertTriangle className="text-red-600 h-8 w-8 shrink-0 mt-1" />
+          <div>
+            <h2 className="text-xl font-bold text-red-800">Account Suspended</h2>
+            <p className="text-red-600 mt-1">
+              Your account has been restricted due to a violation of our community guidelines. 
+              During this time, you cannot post new properties or edit existing ones. 
+              If you believe this is a mistake, please contact support.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-8 rounded-2xl border shadow-sm mb-8">
         <div className="relative h-28 w-28 rounded-full overflow-hidden border-4 border-slate-50 shrink-0 shadow-inner">
           <Image src={avatar} alt="Avatar" fill className="object-cover" />
@@ -53,13 +70,21 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
-          {isOwner && (
+          
+          {isOwner && !user.isBanned && (
             <Link href="/addPost">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-md transition-transform hover:scale-105">
                 <PlusCircle size={18} />
                 Post Property
               </Button>
             </Link>
+          )}
+
+          {isOwner && user.isBanned && (
+            <Button disabled className="bg-slate-200 text-slate-500 gap-2 cursor-not-allowed">
+              <Ban size={18} />
+              Posting Disabled
+            </Button>
           )}
 
           <div className="flex gap-4 items-center bg-slate-50 p-2 rounded-xl border">
@@ -104,7 +129,8 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
               </div>
               <h3 className="text-xl font-semibold text-slate-900">No properties yet</h3>
               <p className="text-slate-500 mt-2 max-w-sm">Ready to sell or rent? Post your first listing now.</p>
-              {isOwner && (
+              
+              {isOwner && !user.isBanned && (
                 <Link href="/addPost" className="mt-6">
                   <Button size="lg" className="rounded-full px-8 shadow-lg">Start Listing</Button>
                 </Link>
@@ -115,7 +141,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
               {posts.map((post: any) => (
                 <div key={post.id} className="relative group flex flex-col h-full border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   
-                  {/* --- CHANGE 1: MODERATION STATUS BADGE (Top Right) --- */}
+                  {/* MODERATION STATUS BADGE */}
                   <div className={`absolute top-3 right-3 z-20 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1 backdrop-blur-md ${
                     post.moderationStatus === "APPROVED" ? "bg-emerald-500/90 text-white" :
                     post.moderationStatus === "REJECTED" ? "bg-rose-600/90 text-white" :
@@ -127,7 +153,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                     {post.moderationStatus}
                   </div>
 
-                  {/* --- CHANGE 2: AVAILABILITY BADGE (Top Left) --- */}
+                  {/* AVAILABILITY BADGE */}
                   <div className={`absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5 ${
                     post.status === "available" 
                       ? "bg-slate-900/80 text-white backdrop-blur-sm" 
@@ -142,14 +168,14 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                   {isOwner && (
                     <div className="flex flex-col gap-2 p-4 bg-white border-t mt-auto">
                       
-                      {/* --- CHANGE 3: DISABLE TOGGLE IF NOT APPROVED --- */}
+                      {/* TOGGLE STATUS BUTTON */}
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        disabled={isPending || post.moderationStatus !== "APPROVED"}
+                        disabled={isPending || post.moderationStatus !== "APPROVED" || user.isBanned}
                         onClick={() => handleToggleStatus(post.id, post.status)}
                         className={`w-full rounded-lg font-semibold transition-all ${
-                          post.moderationStatus !== "APPROVED" 
+                          post.moderationStatus !== "APPROVED" || user.isBanned
                             ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed" 
                             : post.status === "available" 
                               ? "border-amber-200 hover:bg-amber-50 text-amber-700" 
@@ -168,9 +194,17 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                       </Button>
 
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1 rounded-lg">
+                        {/* EDIT BUTTON */}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 rounded-lg"
+                          disabled={user.isBanned}
+                        >
                           <Edit size={14} className="mr-2"/> Edit
                         </Button>
+                        
+                        {/* DELETE BUTTON */}
                         <Button 
                           variant="destructive" 
                           size="sm" 
@@ -185,7 +219,8 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
                 </div>
               ))}
               
-              {isOwner && (
+              {/* ADD ANOTHER LISTING CARD */}
+              {isOwner && !user.isBanned && (
                 <Link href="/addPost" className="group border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-blue-300 hover:bg-blue-50/30 transition-all min-h-[400px]">
                   <div className="h-12 w-12 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
                     <PlusCircle className="text-slate-400 group-hover:text-blue-600" size={24} />
@@ -197,7 +232,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           )}
         </TabsContent>
 
-        {/* --- SAVED & SETTINGS TABS (Unchanged) --- */}
+        {/* SAVED TAB */}
         {isOwner && (
           <TabsContent value="saved" className="outline-none">
             {savedPosts.length === 0 ? (
@@ -220,6 +255,7 @@ export default function ProfileClient({ user, posts, savedPosts, unreadCount, is
           </TabsContent>
         )}
 
+        {/* SETTINGS TAB */}
         {isOwner && (
           <TabsContent value="settings">
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">

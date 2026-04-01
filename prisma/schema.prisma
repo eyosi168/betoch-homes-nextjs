@@ -167,3 +167,11 @@ model Message {
   chat      Chat     @relation(fields: [chatId], references: [id])
   createdAt DateTime @default(now())
 }
+model SystemConfig {
+  id                String   @id @default("system-settings")
+  maintenanceMode   Boolean  @default(false)
+  autoApprovePosts  Boolean  @default(false)
+  platformFee       Float    @default(0.0)
+  supportEmail      String   @default("support@betochhomes.com")
+  updatedAt         DateTime @updatedAt
+}

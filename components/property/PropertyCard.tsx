@@ -63,7 +63,7 @@ export default function PropertyCard({ item, isSavedInitial = false }: PropertyC
   return (
     <Card className={cn(
       "overflow-hidden group hover:shadow-lg transition-all duration-300 border-none bg-slate-50/50",
-      isOccupied && "opacity-80" // Dim the card slightly if occupied
+      isOccupied && "opacity-80" 
     )}>
       <Link href={`/properties/${item.id}`}>
         <div className="relative h-64 w-full overflow-hidden">
