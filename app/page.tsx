@@ -8,6 +8,9 @@ import { FeaturedSkeleton } from "@/components/property/PropertySkeleton";
 async function FeaturedList() {
   const featured = await prisma.post.findMany({
     take: 3,
+    where:{
+      moderationStatus:"APPROVED"
+    },
     orderBy: { createdAt: "desc" },
     include: { postDetail: true },
   });

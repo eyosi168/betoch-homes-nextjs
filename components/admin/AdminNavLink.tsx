@@ -9,7 +9,8 @@ import {
   Users, 
   BarChart3, 
   Settings,
-  Home
+  Home,
+  MessageSquareText
 } from "lucide-react";
 
 // This map lives on the Client side, so it's safe!
@@ -19,7 +20,8 @@ const ICONS = {
   users: Users,
   reports: BarChart3,
   settings: Settings,
-  home: Home
+  home: Home,
+  chats: MessageSquareText,
 };
 
 export default function AdminNavLink({ 

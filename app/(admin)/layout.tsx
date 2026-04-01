@@ -4,6 +4,7 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth"; 
 import AdminNavLink from "@/components/admin/AdminNavLink";
+
 import { 
   LayoutDashboard, 
   ClipboardCheck, 
@@ -11,7 +12,8 @@ import {
   BarChart3, 
   Settings, 
   LogOut,
-  Home
+  Home,
+  MessageSquareText
 } from "lucide-react";
 
 export default async function AdminLayout({
@@ -52,6 +54,7 @@ export default async function AdminLayout({
   <AdminNavLink href="/dashboard" iconName="dashboard">Overview</AdminNavLink>
   <AdminNavLink href="/dashboard/approvals" iconName="approvals">Approvals</AdminNavLink>
   <AdminNavLink href="/dashboard/users" iconName="users">Users</AdminNavLink>
+  <AdminNavLink href="/dashboard/chats" iconName="chats">Communications</AdminNavLink>
 </div>
 
 <div>
