@@ -35,3 +35,34 @@ Node.js (v18.x or later)
 npm, pnpm, or yarn
 
 A running database instance (MongoDB or PostgreSQL)
+Installation
+Clone the repository
+
+Bash
+git clone https://github.com/eyosi168/Betoch-Homes.git
+cd Betoch-Homes
+Install dependencies
+
+Bash
+npm install
+Set up Environment Variables
+Create a .env file in the root directory and add your specific configuration:
+
+Code snippet
+# Database connection string
+DATABASE_URL="your_database_connection_string"
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET="your_auth_secret_here"
+BETTER_AUTH_URL="http://localhost:3000"
+Initialize the Database
+Push your Prisma schema to your database and generate the client:
+
+Bash
+npx prisma db push
+npx prisma generate
+Run the Development Server
+
+Bash
+npm run dev
+The application will be available at http://localhost:3000.
