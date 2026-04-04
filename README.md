@@ -1,68 +1,28 @@
-🏡 Betoch-Homes
-A modern full-stack real estate application featuring dynamic property listings, user-saved posts, and a real-time integrated chat system.
+Betoch Homes – Next.js Real Estate Platform
+Build Status
+License
+Repo Size
 
-📖 About the Project
-Betoch-Homes is a comprehensive real estate platform designed to connect property seekers with their ideal homes. Transitioning to a modern server-rendered architecture, this application provides a seamless user experience for browsing available real estate, bookmarking favorite properties for later, and communicating directly through an embedded chat interface.
+Executive Summary: Betoch Homes is a modern real estate web application built with Next.js. It provides users a responsive interface to browse and search property listings (homes for rent or sale) in Ethiopia. The app likely features interactive pages for viewing listings, filtering by criteria, and contacting agents. It emphasizes fast performance (via Next.js SSR/SSG) and a clean UI (using Tailwind CSS)
+. The code repository includes components for pages like Home, Listings, Property Details, and possibly an admin dashboard for managing listings. Overall, Betoch Homes is aimed at demonstrating a full-stack Next.js project for real estate, showcasing skills in React, Next.js pages/routes, styling, and possibly simple backend/API routes.
 
-✨ Key Features
-Dynamic Property Listings: Browse, filter, and view detailed information about available real estate properties.
-
-Saved Posts: Users can bookmark and save their favorite properties to a personalized dashboard for easy access later.
-
-Integrated Chat System: A real-time messaging interface allowing users to communicate directly regarding specific property listings.
-
-Modern UI/UX: Built with accessible, highly customizable components for a clean and responsive user interface.
-
-Secure Authentication: Robust session management and user authentication.
-
-🛠️ Tech Stack
-Framework: Next.js (App Router)
-
-Language: TypeScript
-
-Authentication: Better Auth
-
-UI Components: shadcn/ui + Tailwind CSS
-
-Database / ORM: Prisma (with MongoDB/PostgreSQL)
-
-🚀 Getting Started
-Prerequisites
-Ensure you have the following installed on your local machine:
-
-Node.js (v18.x or later)
-
-npm, pnpm, or yarn
-
-A running database instance (MongoDB or PostgreSQL)
-Installation
-Clone the repository
-
-Bash
-git clone https://github.com/eyosi168/Betoch-Homes.git
-cd Betoch-Homes
-Install dependencies
-
-Bash
-npm install
-Set up Environment Variables
-Create a .env file in the root directory and add your specific configuration:
-
-Code snippet
-# Database connection string
-DATABASE_URL="your_database_connection_string"
-
-# Better Auth Configuration
-BETTER_AUTH_SECRET="your_auth_secret_here"
-BETTER_AUTH_URL="http://localhost:3000"
-Initialize the Database
-Push your Prisma schema to your database and generate the client:
-
-Bash
-npx prisma db push
-npx prisma generate
-Run the Development Server
-
-Bash
-npm run dev
-The application will be available at http://localhost:3000.
+Key Features and User Flows
+Property Listings & Search: Users can view a list of properties (with images, price, location) and filter/search by criteria like price, type, or location. Similar templates highlight “Property Listings” pages and search interfaces
+.
+Property Detail Pages: Each listing has a detail page showing description, gallery, and contact options.
+Contact/Inquiry Forms: A form to let interested buyers reach out (e.g. contact agent or schedule a viewing)
+.
+User Authentication: Likely features for user login/signup (e.g. using NextAuth or similar) to save favorites or post listings (if implemented).
+Responsive Design: Mobile-friendly layout that adapts across devices. The stack (Next.js + Tailwind) ensures “clean, responsive UI design”
+.
+Admin Dashboard (optional): Possibly a protected area for agents/admins to add or manage property listings (assuming a CRUD flow).
+Technologies
+Next.js & React: Core framework for server-side rendering (SSR) and routing. Next.js is a full-stack React framework with built-in performance optimizations
+.
+Tailwind CSS: Utility-first CSS framework for styling and responsive design
+.
+JavaScript/TypeScript: Likely written in JavaScript or TypeScript (not specified).
+Node.js: Runs Next.js on Node (common choice, e.g. Node 18+).
+Vercel (Deployment): The app can be deployed on Vercel with zero-config deployment for Next.js
+.
+Optional: May use tools like NextAuth for authentication, and possibly a simple data store (JSON or headless CMS). Exact tech versions are not specified in the repo.
